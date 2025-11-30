@@ -1,39 +1,31 @@
 package main
 
 import (
- "testing"
+	"testing"
+	"slices"
 )
 
-func TestWorkerSort(t *testing.T) {
- c := &Company{}
-
- // Добавляем работников
- c.AddWorkerInfo("Михаил", "директор", 3000, 4)         // 12000
- c.AddWorkerInfo("Андрей", "мастер", 1800, 6)           // 10800
- c.AddWorkerInfo("Игорь", "зам. директора", 1800, 3)    // 5400
- c.AddWorkerInfo("Николай", "начальник цеха", 720, 4)   // 2880
- c.AddWorkerInfo("Виктор", "рабочий", 720, 4)           // 2880
-
- expected := []string{
-  "Михаил — 12000 — директор",
-  "Андрей — 10800 — мастер",
-  "Игорь — 5400 — зам. директора",
-  "Николай — 2880 — начальник цеха",
-  "Виктор — 2880 — рабочий",
- }
-
- got, err := c.SortWorkers()
- if err != nil {
-  t.Fatalf("SortWorkers вернул ошибку: %v", err)
- }
-
- if len(got) != len(expected) {
-  t.Fatalf("Размер результата неверный: ожидалось %d, получили %d", len(expected), len(got))
- }
-
- for i := range expected {
-  if got[i] != expected[i] {
-   t.Fatalf("SortWorkers неправильно отсортировал.\nОжидалось: %v\nПолучено: %v", expected, got)
-  }
- }
+func TestSortAndMerge(t *testing.T) {
+	tests := []struct {
+		left     []int
+		right    []int
+		expected []int
+	}{
+		{
+			left:     []int{4, 1, 5, 0},
+			right:    []int{-1, 4, 5, 10},
+			expected: []int{-1, 0, 1, 4, 4, 5, 5, 10},
+		},
+		{
+			left:     []int{490, 741, 88, 1, 10, 7, 234, 2234, 64, -12, 778, 21234, 4345, 45673, -23, 5, 78, 2, 1, 5},
+			right:    []int{-1, 4, 5, 104, 1, 18733, 0},
+			expected: []int{-23, -12, -1, 0, 1, 1, 1, 2, 4, 5, 5, 5, 7, 10, 64, 78, 88, 104, 234, 490, 741, 778, 2234, 4345, 18733, 21234, 45673},
+		},
+	}
+	for _, tc := range tests {
+		merged := SortAndMerge(tc.left, tc.right)
+		if slices.Compare(tc.expected, merged) != 0 {
+			t.Errorf("TestSortNums failed. Expected: %v, Got: %v", tc.expected, merged)
+		}
+	}
 }
