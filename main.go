@@ -1,22 +1,26 @@
 package main
 
-import (
-	"fmt"
-	"slices"
-)
+import "fmt"
 
-func SortAndMerge(left, right []int) []int{
-	var result []int
+const pricePerKm = 10.0
+const pricePerMinute = 2.0
 
-	slices.Sort(left)
-	slices.Sort(right)
+type TripParameters struct {
+	Distance float64
+	Duration float64
+}
 
-	result = append(left, right...)
-	slices.Sort(result)
 
-	return result
+func  CalculateBasePrice (t TripParameters) float64 {
+	return t.Distance*pricePerKm + t.Duration*pricePerMinute
 }
 
 func main() {
-	fmt.Println(SortAndMerge([]int{7, 12, 6, 3, 0}, []int{5, 34, 2, 89, 3}))
+	trip1 := TripParameters{Distance: 8.5, Duration: 20}
+
+	fmt.Println(CalculateBasePrice(trip1))
+
+	trip2 := TripParameters{Distance: 15.0, Duration: 22.3}
+
+	fmt.Println(CalculateBasePrice(trip2))
 }
