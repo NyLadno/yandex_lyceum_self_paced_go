@@ -1,15 +1,22 @@
 package main
 
-const minPrice = 99.0
-const maxPrice = 20000
+import (
+	"io"
+	"os"
+)
 
-func ApplyPriceLimits(price float64) float64 {
-	switch{
-	case price < minPrice:
-		return minPrice
-	case price > maxPrice:
-		return maxPrice
-	default:
-		return price
+func ReadContent(filename string) string {
+	f, err := os.Open(filename)
+	if err != nil{
+		return ""
 	}
+
+	data, errRead := io.ReadAll(f)
+	if errRead != nil{
+		return ""
+	}
+
+	return string(data)
 }
+
+
