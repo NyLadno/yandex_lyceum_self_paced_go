@@ -1,28 +1,33 @@
 package main
 
 import (
-	"bufio"
+	"io"
 	"os"
 )
 
-func LineByNum(inputFilename string, lineNum int) string {
-	f, err := os.Open(inputFilename)
-    defer f.Close()
+func CopyFilePart(inputFilename, outFileName string, startpos int) error {
+	in, err := os.Open(inputFilename)
 	if err != nil {
-		return ""
+		return err
 	}
-	
-	scanner := bufio.NewScanner(f)
-	curentLine := 0
-	var result string
+	defer in.Close()
 
-	for scanner.Scan(){
-		if curentLine == lineNum{
-			result =  scanner.Text()
-			break
-		}
-		curentLine ++
+
+	_, err = in.Seek(int64(startpos), 0)
+	if err != nil {
+		return err
 	}
 
-	return result
+	out, err := os.Create(outFileName)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
