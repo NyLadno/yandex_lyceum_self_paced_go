@@ -1,33 +1,64 @@
 package main
 
 import (
-	"io"
+	"bufio"
+	"errors"
+	"fmt"
 	"os"
+	"strings"
+	"time"
 )
 
-func CopyFilePart(inputFilename, outFileName string, startpos int) error {
-	in, err := os.Open(inputFilename)
+func ExtractLog(inputFileName string, start, end time.Time) ([]string, error) {
+	data, err := os.Open(inputFileName)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer in.Close()
+	defer data.Close()
 
+	var result []string
+	scanner := bufio.NewScanner(data)
+	layout := "02.01.2006"
 
-	_, err = in.Seek(int64(startpos), 0)
-	if err != nil {
-		return err
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			continue
+		}
+
+		datas := strings.Fields(line)
+
+		currentTime, err := time.Parse(layout, datas[0])
+		if err != nil {
+			return nil, err
+		}
+
+		if currentTime.Equal(end) {
+			result = append(result, line)
+			break
+		}
+
+		if currentTime.After(start) || currentTime.Equal(start) {
+			result = append(result, line)
+		}
+
 	}
 
-	out, err := os.Create(outFileName)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, in)
-	if err != nil {
-		return err
+	if err := scanner.Err(); err != nil {
+		return nil, err
 	}
 
-	return nil
+	if len(result) == 0 {
+		return nil, errors.New("No found logs")
+	}
+
+	return result, nil
+}
+
+func main() {
+	exaple := "02.01.2006"
+	start, _ := time.Parse(exaple, "19.12.2022")
+	end, _ := time.Parse(exaple, "20.12.2022")
+
+	fmt.Println(ExtractLog("test.txt", start, end))
 }
