@@ -1,22 +1,28 @@
 package main
 
 import (
-	"io"
+	"bufio"
 	"os"
 )
 
-func ReadContent(filename string) string {
-	f, err := os.Open(filename)
-	if err != nil{
+func LineByNum(inputFilename string, lineNum int) string {
+	f, err := os.Open(inputFilename)
+    defer f.Close()
+	if err != nil {
 		return ""
 	}
+	
+	scanner := bufio.NewScanner(f)
+	curentLine := 0
+	var result string
 
-	data, errRead := io.ReadAll(f)
-	if errRead != nil{
-		return ""
+	for scanner.Scan(){
+		if curentLine == lineNum{
+			result =  scanner.Text()
+			break
+		}
+		curentLine ++
 	}
 
-	return string(data)
+	return result
 }
-
-
